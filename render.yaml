@@ -1,0 +1,67 @@
+version: "1"
+
+services:
+  # 1. Neo4j Database
+  - type: pserv
+    name: thinkmap-neo4j
+    env: image
+    image:
+      url: neo4j:5.18
+    envVars:
+      - key: NEO4J_AUTH
+        value: neo4j/thinkmap123
+      - key: NEO4J_PLUGINS
+        value: '["apoc"]'
+    disk:
+      name: neo4j_data
+      mountPath: /data
+      sizeGB: 1
+
+  # 2. Qdrant Vector DB
+  - type: pserv
+    name: thinkmap-qdrant
+    env: image
+    image:
+      url: qdrant/qdrant:v1.9.2
+    disk:
+      name: qdrant_data
+      mountPath: /qdrant/storage
+      sizeGB: 1
+
+  # 3. FastAPI Backend
+  - type: web
+    name: thinkmap-backend
+    env: python
+    buildCommand: "pip install -r backend/requirements.txt"
+    startCommand: "cd backend && uvicorn app.main:app --host 0.0.0.0 --port 10000"
+    envVars:
+      - key: NEO4J_URI
+        value: bolt://thinkmap-neo4j:7687
+      - key: NEO4J_USER
+        value: neo4j
+      - key: NEO4J_PASSWORD
+        value: thinkmap123
+      - key: QDRANT_HOST
+        value: thinkmap-qdrant
+      - key: QDRANT_PORT
+        value: 6333
+      - key: GROQ_API_KEY
+        sync: false # You will enter this manually in the Render Dashboard
+
+  # 4. Next.js Frontend
+  - type: web
+    name: thinkmap-frontend
+    env: node
+    buildCommand: "cd frontend && npm install && npm run build"
+    startCommand: "cd frontend && npm start"
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: thinkmap-backend
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: NEXT_PUBLIC_WS_URL
+        fromService:
+          type: web
+          name: thinkmap-backend
+          envVarKey: RENDER_EXTERNAL_URL
