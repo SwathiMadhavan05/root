@@ -7,6 +7,8 @@ class Settings(BaseSettings):
 
     qdrant_host: str = "localhost"
     qdrant_port: int = 6333
+    qdrant_url: str | None = None
+    qdrant_api_key: str | None = None
     qdrant_collection: str = "thinkmap_chunks"
 
     groq_api_key: str = ""

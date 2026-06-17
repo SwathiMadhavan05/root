@@ -6,7 +6,10 @@ from fastembed import TextEmbedding
 from app.core.config import settings
 import uuid
 
-client = QdrantClient(host=settings.qdrant_host, port=settings.qdrant_port)
+if settings.qdrant_url and settings.qdrant_api_key:
+    client = QdrantClient(url=settings.qdrant_url, api_key=settings.qdrant_api_key)
+else:
+    client = QdrantClient(host=settings.qdrant_host, port=settings.qdrant_port)
 embedder = TextEmbedding(model_name="BAAI/bge-small-en-v1.5")
 
 VECTOR_SIZE = 384
