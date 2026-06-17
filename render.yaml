@@ -4,9 +4,8 @@ services:
   # 1. Neo4j Database
   - type: pserv
     name: thinkmap-neo4j
-    env: image
-    image:
-      url: neo4j:5.18
+    env: docker
+    rootDir: neo4j
     envVars:
       - key: NEO4J_AUTH
         value: neo4j/thinkmap123
@@ -20,9 +19,8 @@ services:
   # 2. Qdrant Vector DB
   - type: pserv
     name: thinkmap-qdrant
-    env: image
-    image:
-      url: qdrant/qdrant:v1.9.2
+    env: docker
+    rootDir: qdrant
     disk:
       name: qdrant_data
       mountPath: /qdrant/storage
@@ -32,8 +30,9 @@ services:
   - type: web
     name: thinkmap-backend
     env: python
-    buildCommand: "pip install -r backend/requirements.txt"
-    startCommand: "cd backend && uvicorn app.main:app --host 0.0.0.0 --port 10000"
+    rootDir: backend
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port 10000"
     envVars:
       - key: NEO4J_URI
         value: bolt://thinkmap-neo4j:7687
@@ -52,8 +51,9 @@ services:
   - type: web
     name: thinkmap-frontend
     env: node
-    buildCommand: "cd frontend && npm install && npm run build"
-    startCommand: "cd frontend && npm start"
+    rootDir: frontend
+    buildCommand: "npm install && npm run build"
+    startCommand: "npm start"
     envVars:
       - key: NEXT_PUBLIC_API_URL
         fromService:
