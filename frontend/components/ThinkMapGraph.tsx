@@ -450,7 +450,7 @@ export default function RootGraph({ question, documentText, onAnswer, onNodesUpd
     setIsExpanding(true);
     setDeepDesc("Loading…");
     try {
-      const res = await fetch("http://localhost:8000/api/expand", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/expand`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -488,7 +488,7 @@ export default function RootGraph({ question, documentText, onAnswer, onNodesUpd
     setIsChallenging(true);
     setChallengeResult(null);
     try {
-      const res = await fetch("http://localhost:8000/api/challenge", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/challenge`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
